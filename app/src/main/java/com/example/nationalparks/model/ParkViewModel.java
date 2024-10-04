@@ -16,7 +16,7 @@ public class ParkViewModel extends ViewModel {
     public LiveData<Park> getSelectedPark() {
         return selectedPark;
     }
-    public void selectPark(Park park) {
+    public void setSelectPark(Park park) {
         selectedPark.setValue(park);
     }
     public LiveData<List<Park>> getParks() { return  selectedParks; }

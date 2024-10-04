@@ -52,7 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .replace(R.id.map,mapFragment)
                         .commit();//without it,It Doesn't Work
                 mapFragment.getMapAsync(this);/*this will Help to get Everything
-                     Such as markers,or else Map Screen will show you blank Screen
+                     Such as markers,or else Map Screen will show you blank Screenc
                 */
                 return  true;
 
@@ -91,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng sydney = new LatLng(Double.parseDouble(park.getLatitude()),
                         Double.parseDouble(park.getLongitude()));
                 mMap.addMarker(new MarkerOptions().position(sydney).title(park.getFullName()));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,8));
                 Log.d("Parks","onMapReady :"+park.getFullName());
             }
         });

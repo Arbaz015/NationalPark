@@ -13,16 +13,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.nationalparks.adaptor.OnParkClickListener;
 import com.example.nationalparks.adaptor.ParkRecyclerViewAdoptor;
 import com.example.nationalparks.data.AsyncResponse;
 import com.example.nationalparks.data.Repository;
 import com.example.nationalparks.model.Park;
+import com.example.nationalparks.model.ParkViewModel;
 
 import java.util.List;
 
-public class ParksFragment extends Fragment {
+public class ParksFragment extends Fragment implements OnParkClickListener {
         private RecyclerView recyclerView;
         private ParkRecyclerViewAdoptor parkRecyclerViewAdoptor;
+
         private List<Park> parkList;
 
     public ParksFragment() {
@@ -46,11 +49,24 @@ public class ParksFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Repository.getParks(parks ->
-                parkRecyclerViewAdoptor= new ParkRecyclerViewAdoptor(parks));
+        recyclerView = view.findViewById(R.id.park_recycler);
+        recyclerView.setHasFixedSize(true);
 
-        recyclerView.setAdapter(parkRecyclerViewAdoptor);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        super.onViewCreated(view, savedInstanceState);
+            Repository.getParks(parks -> {
+                parkRecyclerViewAdoptor= new ParkRecyclerViewAdoptor(parks,this);
+                for (Park park1:parks){
+                    Log.d("Check","onBind"+park1.getName());
+
+                }
+                recyclerView.setAdapter(parkRecyclerViewAdoptor);
+//                    parkRecyclerViewAdoptor.notifyDataSetChanged();
+            });
+    }
+    public void m(ParkRecyclerViewAdoptor parkRecyclerViewAdoptor)
+    {
 
     }
 
@@ -60,9 +76,18 @@ public class ParksFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_parks, container, false);
-        recyclerView = view.findViewById(R.id.park_recycler);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
         return view;
+    }
+
+    @Override
+    public void onParkClicked(Park park) {
+        Log.d("TAG", "onParkClicked: "+park.getName());
+
+        getParentFragmentManager().beginTransaction()/*Navigating From Current
+                                                        Fragment to another*/
+                .replace(R.id.park_fragment,DetailsFragment.newInstance())
+                .commit();
+
     }
 }

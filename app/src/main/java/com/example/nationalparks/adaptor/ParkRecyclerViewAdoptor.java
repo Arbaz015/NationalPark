@@ -1,5 +1,6 @@
 package com.example.nationalparks.adaptor;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +18,11 @@ import java.util.List;
 
 public class ParkRecyclerViewAdoptor extends RecyclerView.Adapter<ParkRecyclerViewAdoptor.ViewHolder> {
     private final List<Park>parkList;
+    private final OnParkClickListener parkClickListener;
 
-    public ParkRecyclerViewAdoptor(List<Park> parkList) {
+    public ParkRecyclerViewAdoptor(List<Park> parkList,OnParkClickListener  parkClickListener  )      {
         this.parkList = parkList;
+        this.parkClickListener=parkClickListener;
     }
 
 
@@ -47,25 +50,38 @@ public class ParkRecyclerViewAdoptor extends RecyclerView.Adapter<ParkRecyclerVi
                         .centerCrop()
                         .into(holder.parkImage);
             }
+
     }
 
     @Override
     public int getItemCount() {
+        Log.d("GetCount","ParkRecycler"+parkList.size());
+
         return parkList.size();
     }
 
-    public class ViewHolder  extends RecyclerView.ViewHolder {
+    public class ViewHolder  extends RecyclerView.ViewHolder implements View.OnClickListener {
         public  ImageView parkImage;
         public TextView parkName;
         public TextView parkType;
         public TextView parkState;
-
+        OnParkClickListener onParkClickListener;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            parkImage=itemView.findViewById(R.id.row_park_imageView);
-            parkName=itemView.findViewById(R.id.row_park_name_textView);
-            parkType=itemView.findViewById(R.id.row_park_type_textView);
-            parkState=itemView.findViewById(R.id.row_park_state_textView);
+            parkImage=itemView.findViewById(R.id.row_park_imageview);
+            parkName=itemView.findViewById(R.id.row_par_name_textview);
+            parkType=itemView.findViewById(R.id.row_park_type_textview);
+            parkState=itemView.findViewById(R.id.row_part_state_textview);
+            this.onParkClickListener=parkClickListener;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+
+            Park currPark=parkList.get(getAdapterPosition());
+            onParkClickListener.onParkClicked(currPark);
+
         }
     }
 }
