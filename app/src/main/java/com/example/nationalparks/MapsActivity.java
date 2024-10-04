@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 
 import com.example.nationalparks.data.Repository;
 import com.example.nationalparks.model.Park;
+import com.example.nationalparks.model.ParkViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,14 +23,20 @@ import com.example.nationalparks.databinding.ActivityMapsBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-
+    private ParkViewModel parkViewModel;
+    private List<Park> parkList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        parkViewModel=new ViewModelProvider(this)
+                .get(ParkViewModel.class);
 
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -60,9 +68,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             {
                 selectedFragment=ParksFragment.newInstance();
             }
-                getSupportFragmentManager().beginTransaction()
+            assert selectedFragment != null;
+            getSupportFragmentManager().beginTransaction()
                         .replace(R.id.map,selectedFragment)
                         .commit();
+
+            
             return true;
         });
 
@@ -81,11 +92,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        parkList= new ArrayList<>();
+        parkList.clear();
 
         // Add a marker in Sydney and move the camera
 
 
         Repository.getParks(parks -> {
+            parkList=parks;
             for (Park park:parks)
             {
                 LatLng sydney = new LatLng(Double.parseDouble(park.getLatitude()),
@@ -94,6 +108,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,8));
                 Log.d("Parks","onMapReady :"+park.getFullName());
             }
+            parkViewModel.setSelectedParks(parkList);
         });
     }
 }
