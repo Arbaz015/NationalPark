@@ -95,7 +95,7 @@ public class ParksFragment extends Fragment implements OnParkClickListener {
         Log.d("TAG", "onParkClicked: "+park.getName());
         parkViewModel.setSelectPark(park);
         getChildFragmentManager().beginTransaction()/*Navigating From Current
-                                                        Fragment to another*/
+                                                        Fragment to another with Data*/
                 .replace(R.id.park_fragment,DetailsFragment.newInstance())
                 .commit();
 
