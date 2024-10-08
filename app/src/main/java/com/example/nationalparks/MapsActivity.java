@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.example.nationalparks.adaptor.CustomInfoWindow;
 import com.example.nationalparks.data.Repository;
 import com.example.nationalparks.model.Park;
 import com.example.nationalparks.model.ParkViewModel;
@@ -17,7 +18,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.nationalparks.databinding.ActivityMapsBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -26,7 +29,8 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
@@ -92,6 +96,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        //Getting Ready Custom Window
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(getApplicationContext()));
+
+        /*Registering This map to receiving the acknowledge
+            the click event when the window is clicked
+        * */
+        mMap.setOnInfoWindowClickListener(this);
         parkList= new ArrayList<>();
         parkList.clear();
 
@@ -102,13 +114,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             parkList=parks;
             for (Park park:parks)
             {
-                LatLng sydney = new LatLng(Double.parseDouble(park.getLatitude()),
+                LatLng location = new LatLng(Double.parseDouble(park.getLatitude()),
                         Double.parseDouble(park.getLongitude()));
-                mMap.addMarker(new MarkerOptions().position(sydney).title(park.getFullName()));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,8));
+                MarkerOptions markerOptions=
+                        new MarkerOptions()
+                                .position(location)
+                                .title(park.getName())
+                                //Changing the Icon Color Of Marker
+                                .icon(BitmapDescriptorFactory.defaultMarker(
+                                        BitmapDescriptorFactory.HUE_GREEN
+                                ))
+                                .snippet(park.getStates());
+
+                Marker marker= mMap.addMarker(markerOptions); //Adding marker
+                marker.setTag(park); //adding object to marker so can use anywhere.
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,8));
                 Log.d("Parks","onMapReady :"+park.getFullName());
             }
             parkViewModel.setSelectedParks(parkList);
         });
+    }
+
+    @Override
+    public void onInfoWindowClick(@NonNull Marker marker) {
+        goToDetailsFragment(marker);
+    }
+
+    private void goToDetailsFragment(@NonNull Marker marker) {
+        //go to DetailsFragment
+        parkViewModel.setSelectPark((Park) marker.getTag());
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.map,DetailsFragment.newInstance())
+                .commit();
     }
 }

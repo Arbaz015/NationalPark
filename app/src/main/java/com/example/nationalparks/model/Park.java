@@ -475,12 +475,13 @@ public class Park {
         this.contacts = contacts;
     }
 
-    public List<EntranceFees> getEntranceFees() {
-        return this.entranceFees;
-    }
+
 
     public void setEntranceFees(List<EntranceFees> entranceFees) {
         this.entranceFees = entranceFees;
+    }
+    public List<EntranceFees> getEntranceFees() {
+        return this.entranceFees;
     }
 
     public List<String> getEntrancePasses() {
